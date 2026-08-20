@@ -1,0 +1,980 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>XR Editor — Portfolio Case Study</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      background-color: #08080f;
+      color: #cbd5e1;
+    }
+    .gradient-heading {
+      background: linear-gradient(to right, #818cf8, #22d3ee);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .hero-gradient {
+      background: linear-gradient(to right, white, #818cf8, #22d3ee);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .section-label {
+      color: #818cf8;
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+    }
+    .section-heading {
+      font-size: 2.625rem;
+      font-weight: 700;
+    }
+    .card {
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.07);
+      border-radius: 1rem;
+      padding: 2rem;
+    }
+    .stat-num {
+      font-size: 2rem;
+      font-weight: 700;
+      color: #818cf8;
+    }
+    .img-placeholder {
+      background: #1a1a2e;
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 8px;
+      padding: 40px;
+      text-align: center;
+      color: #475569;
+      font-size: 12px;
+    }
+    .ba-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-top: 2rem; }
+    .ba-col { border-radius: 1rem; padding: 2.5rem; }
+    .ba-col.before { background: rgba(248,113,113,0.06); border: 1px solid rgba(248,113,113,0.15); }
+    .ba-col.after { background: rgba(52,211,153,0.06); border: 1px solid rgba(52,211,153,0.15); }
+    .ba-col h3 { font-size: 1.25rem; font-weight: 700; margin-bottom: 1.5rem; }
+    .ba-col.before h3 { color: #f87171; }
+    .ba-col.after h3 { color: #34d399; }
+    .ba-item { display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem; }
+    .ba-num { font-size: 1.5rem; font-weight: 700; min-width: 3rem; flex-shrink: 0; }
+    .ba-col.before .ba-num { color: #f87171; }
+    .ba-col.after .ba-num { color: #34d399; }
+    .ba-text { font-size: 0.875rem; color: #94a3b8; }
+    .decision-card { background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.06); border-radius: 1rem; padding: 2rem; margin-bottom: 2rem; }
+    .decision-num { font-size: 0.875rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em; color: #818cf8; margin-bottom: 0.75rem; }
+    .decision-card h3 { font-size: 1.25rem; font-weight: 700; color: white; margin-bottom: 1rem; }
+    .decision-card p { font-size: 0.9375rem; color: #94a3b8; line-height: 1.7; margin-bottom: 1.5rem; }
+    /* Lightbox */
+    #lightbox {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.85);
+      z-index: 1000;
+      justify-content: center;
+      align-items: center;
+    }
+    #lightbox.active { display: flex; }
+    #lightbox-img { max-width: 90vw; max-height: 85vh; border-radius: 8px; }
+    #lightbox-close {
+      position: absolute;
+      top: 1.5rem;
+      right: 1.5rem;
+      background: rgba(255,255,255,0.1);
+      border: none;
+      color: white;
+      font-size: 1.5rem;
+      width: 2.5rem;
+      height: 2.5rem;
+      border-radius: 50%;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    #lightbox-prev, #lightbox-next {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      background: rgba(255,255,255,0.1);
+      border: none;
+      color: white;
+      font-size: 1.5rem;
+      width: 3rem;
+      height: 3rem;
+      border-radius: 50%;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    #lightbox-prev { left: 1.5rem; }
+    #lightbox-next { right: 1.5rem; }
+  </style>
+</head>
+<body>
+
+<!-- Lightbox -->
+<div id="lightbox">
+  <button id="lightbox-close" onclick="closeLightbox()">&#x2715;</button>
+  <button id="lightbox-prev" onclick="moveLightbox(-1)">&#8249;</button>
+  <img id="lightbox-img" src="" alt="Preview" />
+  <button id="lightbox-next" onclick="moveLightbox(1)">&#8250;</button>
+</div>
+
+<main style="max-width: 960px; margin: 0 auto; padding: 0 1.5rem;">
+
+  <!-- HERO -->
+  <section style="padding: 7rem 0 4rem; text-align: center;">
+    <div class="section-label" style="margin-bottom:1rem;">Case Study</div>
+    <h1 class="hero-gradient" style="font-size:72px; font-weight:700; line-height:1.1; margin-bottom:1.5rem;">XR Editor</h1>
+    <p style="font-size:1.25rem; color:#cbd5e1; margin-bottom:3rem;">Building software for 3D surgical planning</p>
+
+    <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:1rem; margin-bottom:1.5rem;">
+      <div class="card" style="text-align:left;">
+        <div class="section-label" style="margin-bottom:0.5rem;">Role</div>
+        <div style="color:white; font-weight:600;">Senior UX Designer</div>
+      </div>
+      <div class="card" style="text-align:left;">
+        <div class="section-label" style="margin-bottom:0.5rem;">Domain</div>
+        <div style="color:white; font-weight:600;">MedTech</div>
+      </div>
+      <div class="card" style="text-align:left;">
+        <div class="section-label" style="margin-bottom:0.5rem;">Team</div>
+        <div style="color:white; font-weight:600; font-size:0.875rem;">Team of 10 &middot; UX &middot; FE &middot; BE &middot; 3D &middot; QA &middot; PM &middot; TL</div>
+      </div>
+    </div>
+
+    <div style="display:flex; flex-wrap:wrap; gap:0.5rem; justify-content:center;">
+      <span style="background:rgba(129,140,248,0.12); border:1px solid rgba(129,140,248,0.25); color:#818cf8; border-radius:999px; padding:0.25rem 0.875rem; font-size:0.8125rem; font-weight:500;">Figma</span>
+      <span style="background:rgba(129,140,248,0.12); border:1px solid rgba(129,140,248,0.25); color:#818cf8; border-radius:999px; padding:0.25rem 0.875rem; font-size:0.8125rem; font-weight:500;">Miro</span>
+      <span style="background:rgba(129,140,248,0.12); border:1px solid rgba(129,140,248,0.25); color:#818cf8; border-radius:999px; padding:0.25rem 0.875rem; font-size:0.8125rem; font-weight:500;">User Flows</span>
+      <span style="background:rgba(129,140,248,0.12); border:1px solid rgba(129,140,248,0.25); color:#818cf8; border-radius:999px; padding:0.25rem 0.875rem; font-size:0.8125rem; font-weight:500;">Prototyping</span>
+      <span style="background:rgba(129,140,248,0.12); border:1px solid rgba(129,140,248,0.25); color:#818cf8; border-radius:999px; padding:0.25rem 0.875rem; font-size:0.8125rem; font-weight:500;">DICOM</span>
+      <span style="background:rgba(129,140,248,0.12); border:1px solid rgba(129,140,248,0.25); color:#818cf8; border-radius:999px; padding:0.25rem 0.875rem; font-size:0.8125rem; font-weight:500;">XR</span>
+    </div>
+  </section>
+
+  <div style="border-top:1px solid rgba(255,255,255,0.06); margin: 0 0 4rem;"></div>
+
+  <!-- ROLE & IMPACT -->
+  <section style="margin-bottom:5rem;">
+    <div class="section-label" style="margin-bottom:0.5rem;">Contribution</div>
+    <h2 class="section-heading gradient-heading" style="margin-bottom:2.5rem;">Role &amp; Impact</h2>
+
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:1.5rem; margin-bottom:2rem;">
+      <div class="card">
+        <h3 style="color:white; font-weight:700; font-size:1.125rem; margin-bottom:1.25rem;">My Contribution</h3>
+        <ul style="list-style:none; padding:0; margin:0; display:flex; flex-direction:column; gap:0.625rem;">
+          <li style="display:flex; align-items:flex-start; gap:0.625rem; color:#94a3b8; font-size:0.9rem;"><span style="color:#818cf8; margin-top:2px;">&#8226;</span> Product discovery &amp; domain research</li>
+          <li style="display:flex; align-items:flex-start; gap:0.625rem; color:#94a3b8; font-size:0.9rem;"><span style="color:#818cf8; margin-top:2px;">&#8226;</span> Information architecture</li>
+          <li style="display:flex; align-items:flex-start; gap:0.625rem; color:#94a3b8; font-size:0.9rem;"><span style="color:#818cf8; margin-top:2px;">&#8226;</span> User flows &amp; interaction modeling</li>
+          <li style="display:flex; align-items:flex-start; gap:0.625rem; color:#94a3b8; font-size:0.9rem;"><span style="color:#818cf8; margin-top:2px;">&#8226;</span> UX architecture for 3D editing environment</li>
+          <li style="display:flex; align-items:flex-start; gap:0.625rem; color:#94a3b8; font-size:0.9rem;"><span style="color:#818cf8; margin-top:2px;">&#8226;</span> Prototyping (low-fi through high-fidelity)</li>
+          <li style="display:flex; align-items:flex-start; gap:0.625rem; color:#94a3b8; font-size:0.9rem;"><span style="color:#818cf8; margin-top:2px;">&#8226;</span> Usability testing design &amp; facilitation</li>
+          <li style="display:flex; align-items:flex-start; gap:0.625rem; color:#94a3b8; font-size:0.9rem;"><span style="color:#818cf8; margin-top:2px;">&#8226;</span> Developer handoff &amp; interaction specs</li>
+        </ul>
+        <div style="border-top:1px solid rgba(255,255,255,0.07); margin-top:1.5rem; padding-top:1.5rem; display:grid; grid-template-columns:1fr 1fr 1fr; gap:1rem; text-align:center;">
+          <div>
+            <div class="stat-num" style="font-size:1.5rem;">47&rarr;12<span style="font-size:0.875rem;">m</span></div>
+            <div style="color:#64748b; font-size:0.75rem; margin-top:0.25rem;">Planning time</div>
+          </div>
+          <div>
+            <div class="stat-num" style="font-size:1.5rem;">4&rarr;1</div>
+            <div style="color:#64748b; font-size:0.75rem; margin-top:0.25rem;">Tools unified</div>
+          </div>
+          <div>
+            <div class="stat-num" style="font-size:1.5rem;">34&rarr;8<span style="font-size:0.875rem;">s</span></div>
+            <div style="color:#64748b; font-size:0.75rem; margin-top:0.25rem;">Discovery time</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card" style="background:rgba(248,113,113,0.03); border-color:rgba(248,113,113,0.12);">
+        <h3 style="color:#f87171; font-weight:700; font-size:1.125rem; margin-bottom:1.25rem;">Not Responsible For</h3>
+        <ul style="list-style:none; padding:0; margin:0; display:flex; flex-direction:column; gap:0.625rem;">
+          <li style="display:flex; align-items:flex-start; gap:0.625rem; color:#94a3b8; font-size:0.9rem;"><span style="color:#f87171; margin-top:2px;">&#8226;</span> Visual branding &amp; identity</li>
+          <li style="display:flex; align-items:flex-start; gap:0.625rem; color:#94a3b8; font-size:0.9rem;"><span style="color:#f87171; margin-top:2px;">&#8226;</span> Final visual polish &amp; UI skin</li>
+          <li style="display:flex; align-items:flex-start; gap:0.625rem; color:#94a3b8; font-size:0.9rem;"><span style="color:#f87171; margin-top:2px;">&#8226;</span> Marketing materials</li>
+        </ul>
+        <div style="border-top:1px solid rgba(248,113,113,0.1); margin-top:1.5rem; padding-top:1.5rem; display:grid; grid-template-columns:1fr 1fr 1fr; gap:1rem; text-align:center;">
+          <div>
+            <div style="font-size:1.5rem; font-weight:700; color:#f87171;">20+</div>
+            <div style="color:#64748b; font-size:0.75rem; margin-top:0.25rem;">Workflows</div>
+          </div>
+          <div>
+            <div style="font-size:1.5rem; font-weight:700; color:#f87171;">50+</div>
+            <div style="color:#64748b; font-size:0.75rem; margin-top:0.25rem;">Screens</div>
+          </div>
+          <div>
+            <div style="font-size:1.5rem; font-weight:700; color:#f87171;">0</div>
+            <div style="color:#64748b; font-size:0.75rem; margin-top:0.25rem;">Exports</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ABOUT THE PROJECT -->
+  <section style="margin-bottom:5rem;">
+    <div class="section-label" style="margin-bottom:0.5rem;">Overview</div>
+    <h2 class="section-heading gradient-heading" style="margin-bottom:2rem;">About the Project</h2>
+
+    <div class="card">
+      <p style="color:#94a3b8; line-height:1.8; margin-bottom:1.25rem;">XR Editor is a web-based surgical planning platform designed to replace the fragmented, multi-tool workflow that orthopedic and spinal surgeons currently rely on before entering the operating room. The product allows surgeons and their teams to load DICOM imaging data, reconstruct 3D anatomical models, annotate and edit them directly in-browser, and then review those models in augmented reality via a HoloLens headset &mdash; all without switching applications or converting files.</p>
+      <p style="color:#94a3b8; line-height:1.8; margin-bottom:1.25rem;">The project ran over 14 months and involved close collaboration with practicing surgeons, radiologists, and biomedical engineers. My responsibility spanned the entire UX lifecycle: from initial discovery and domain research, through information architecture and interaction design, to high-fidelity prototyping and facilitated usability testing with clinical users.</p>
+      <p style="color:#94a3b8; line-height:1.8; margin-bottom:1.5rem;">The platform was built for a startup in the medical device space. It is currently in active clinical evaluation and has been piloted in two hospital networks across Europe.</p>
+
+      <div style="background:rgba(129,140,248,0.06); border:1px solid rgba(129,140,248,0.15); border-radius:0.75rem; padding:1.25rem 1.5rem; margin-bottom:1.5rem;">
+        <p style="color:#818cf8; font-size:0.875rem; margin:0;"><strong>NDA Notice:</strong> Certain visuals and client details have been abstracted or omitted in compliance with a non-disclosure agreement. All data presented reflects real outcomes but has been generalized where necessary to protect proprietary information.</p>
+      </div>
+
+      <p style="color:#94a3b8; font-style:italic; line-height:1.8; border-left:3px solid #818cf8; padding-left:1.25rem; margin:0;">"What we were building wasn't just a tool &mdash; it was a new mental model for how surgeons interact with a patient's anatomy before ever touching them. That required us to deeply understand both the clinical workflow and the cognitive load of intraoperative decision-making."</p>
+    </div>
+  </section>
+
+  <!-- MARKET RESEARCH -->
+  <section style="margin-bottom:5rem;">
+    <div class="section-label" style="margin-bottom:0.5rem;">Context</div>
+    <h2 class="section-heading gradient-heading" style="margin-bottom:2rem;">Market Research</h2>
+
+    <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:1.25rem; margin-bottom:2rem;">
+      <div class="card">
+        <div style="font-size:1.5rem; margin-bottom:0.75rem;">&#9874;</div>
+        <h3 style="color:white; font-weight:700; font-size:1rem; margin-bottom:0.75rem;">Fragmented Tooling</h3>
+        <p style="color:#94a3b8; font-size:0.875rem; line-height:1.7; margin:0;">Surgical planning across the market relies on 3&ndash;6 separate applications that don't communicate. Surgeons move between PACS viewers, segmentation software, 3D modelers, file converters, and AR headset loaders &mdash; often manually re-exporting at each step.</p>
+      </div>
+      <div class="card">
+        <div style="font-size:1.5rem; margin-bottom:0.75rem;">&#128421;</div>
+        <h3 style="color:white; font-weight:700; font-size:1rem; margin-bottom:0.75rem;">Desktop Lock-in</h3>
+        <p style="color:#94a3b8; font-size:0.875rem; line-height:1.7; margin:0;">Existing solutions (Materialise, Brainlab, Stryker Virtual Planning) require expensive licensed desktop software installed on specific hospital machines. Remote review and team collaboration are either unavailable or require proprietary hardware ecosystems.</p>
+      </div>
+      <div class="card">
+        <div style="font-size:1.5rem; margin-bottom:0.75rem;">&#128101;</div>
+        <h3 style="color:white; font-weight:700; font-size:1rem; margin-bottom:0.75rem;">Zero Collaboration</h3>
+        <p style="color:#94a3b8; font-size:0.875rem; line-height:1.7; margin:0;">Pre-operative planning is almost entirely asynchronous and solo. There is no real-time collaboration model in current tools &mdash; surgical teams share screenshots via email or hold in-person review sessions around a single monitor.</p>
+      </div>
+    </div>
+
+    <div class="card" style="border-left:3px solid #22d3ee;">
+      <p style="color:#cbd5e1; font-style:italic; line-height:1.8; margin:0;">The market had conflated "feature completeness" with usability. Products were clinically capable but operationally burdensome. Our opportunity wasn't to build better features &mdash; it was to build a fundamentally more coherent experience.</p>
+    </div>
+  </section>
+
+  <!-- TRADE-OFFS -->
+  <section style="margin-bottom:5rem;">
+    <div class="section-label" style="margin-bottom:0.5rem;">Decision Making</div>
+    <h2 class="section-heading gradient-heading" style="margin-bottom:2rem;">Trade-offs</h2>
+
+    <div style="display:flex; flex-direction:column; gap:1rem;">
+
+      <div class="card">
+        <div style="display:grid; grid-template-columns:1fr auto 1fr; gap:1.5rem; align-items:start;">
+          <div>
+            <div style="color:#f87171; font-size:0.75rem; font-weight:600; text-transform:uppercase; letter-spacing:0.08em; margin-bottom:0.5rem;">Rejected</div>
+            <h4 style="color:#f87171; font-weight:600; margin-bottom:0.5rem;">Desktop-native 3D viewer</h4>
+            <p style="color:#64748b; font-size:0.875rem; line-height:1.6; margin:0;">Maximum rendering performance, familiar paradigm for surgeons used to OsiriX/Horos. Full GPU access, offline capable.</p>
+          </div>
+          <div style="display:flex; align-items:center; color:#475569; font-size:1.25rem; padding-top:1.5rem;">&rarr;</div>
+          <div>
+            <div style="color:#34d399; font-size:0.75rem; font-weight:600; text-transform:uppercase; letter-spacing:0.08em; margin-bottom:0.5rem;">Our Choice</div>
+            <h4 style="color:#34d399; font-weight:600; margin-bottom:0.5rem;">Web-based 3D environment (WebGL)</h4>
+            <p style="color:#94a3b8; font-size:0.875rem; line-height:1.6; margin:0;">Zero install friction, cross-device access, real-time collaboration potential, and remote review without VPN or file sharing.</p>
+          </div>
+        </div>
+        <div style="margin-top:1.25rem; padding-top:1.25rem; border-top:1px solid rgba(255,255,255,0.06);">
+          <p style="color:#64748b; font-size:0.8125rem; line-height:1.6; margin:0;"><strong style="color:#94a3b8;">Reasoning:</strong> Clinical teams are distributed. The ability for a radiologist, surgeon, and assistant to review the same model simultaneously outweighs the performance delta achievable in WebGL vs. native, especially at the model complexity we were targeting.</p>
+        </div>
+      </div>
+
+      <div class="card">
+        <div style="display:grid; grid-template-columns:1fr auto 1fr; gap:1.5rem; align-items:start;">
+          <div>
+            <div style="color:#f87171; font-size:0.75rem; font-weight:600; text-transform:uppercase; letter-spacing:0.08em; margin-bottom:0.5rem;">Rejected</div>
+            <h4 style="color:#f87171; font-weight:600; margin-bottom:0.5rem;">Full CAD-style scene hierarchy</h4>
+            <p style="color:#64748b; font-size:0.875rem; line-height:1.6; margin:0;">Maximum flexibility for power users. Every object, layer, and modifier exposed in a tree. Familiar to 3D artists and engineers.</p>
+          </div>
+          <div style="display:flex; align-items:center; color:#475569; font-size:1.25rem; padding-top:1.5rem;">&rarr;</div>
+          <div>
+            <div style="color:#34d399; font-size:0.75rem; font-weight:600; text-transform:uppercase; letter-spacing:0.08em; margin-bottom:0.5rem;">Our Choice</div>
+            <h4 style="color:#34d399; font-weight:600; margin-bottom:0.5rem;">Anatomy-first flat structure</h4>
+            <p style="color:#94a3b8; font-size:0.875rem; line-height:1.6; margin:0;">Objects organized by anatomical region, not technical hierarchy. Surgeons think in anatomy, not scene graphs.</p>
+          </div>
+        </div>
+        <div style="margin-top:1.25rem; padding-top:1.25rem; border-top:1px solid rgba(255,255,255,0.06);">
+          <p style="color:#64748b; font-size:0.8125rem; line-height:1.6; margin:0;"><strong style="color:#94a3b8;">Reasoning:</strong> Every surgeon we tested with described their mental model in anatomical terms ("the femoral head," "L4-L5 segment"). Imposing a technical hierarchy created cognitive friction. Flattening to anatomy reduced navigation errors by 60% in early testing.</p>
+        </div>
+      </div>
+
+      <div class="card">
+        <div style="display:grid; grid-template-columns:1fr auto 1fr; gap:1.5rem; align-items:start;">
+          <div>
+            <div style="color:#f87171; font-size:0.75rem; font-weight:600; text-transform:uppercase; letter-spacing:0.08em; margin-bottom:0.5rem;">Rejected</div>
+            <h4 style="color:#f87171; font-weight:600; margin-bottom:0.5rem;">Auto-save with version history</h4>
+            <p style="color:#64748b; font-size:0.875rem; line-height:1.6; margin:0;">Standard SaaS pattern. Familiar, low-friction. Hides save complexity from the user. Common in Figma, Notion, etc.</p>
+          </div>
+          <div style="display:flex; align-items:center; color:#475569; font-size:1.25rem; padding-top:1.5rem;">&rarr;</div>
+          <div>
+            <div style="color:#34d399; font-size:0.75rem; font-weight:600; text-transform:uppercase; letter-spacing:0.08em; margin-bottom:0.5rem;">Our Choice</div>
+            <h4 style="color:#34d399; font-weight:600; margin-bottom:0.5rem;">Explicit save with named checkpoints</h4>
+            <p style="color:#94a3b8; font-size:0.875rem; line-height:1.6; margin:0;">Surgeons must consciously approve a planning state before it can be used in AR review. Named checkpoints match clinical documentation norms.</p>
+          </div>
+        </div>
+        <div style="margin-top:1.25rem; padding-top:1.25rem; border-top:1px solid rgba(255,255,255,0.06);">
+          <p style="color:#64748b; font-size:0.8125rem; line-height:1.6; margin:0;"><strong style="color:#94a3b8;">Reasoning:</strong> In a clinical context, the version of a surgical plan that gets loaded into the OR must be intentional. Auto-save in a regulated environment creates traceability problems. Explicit save is a feature, not a limitation.</p>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- INFORMATION ARCHITECTURE -->
+  <section style="margin-bottom:5rem;">
+    <div class="section-label" style="margin-bottom:0.5rem;">Structure</div>
+    <h2 class="section-heading gradient-heading" style="margin-bottom:2rem;">Information Architecture</h2>
+
+    <div class="card">
+      <div style="text-align:center; margin-bottom:2rem;">
+        <div style="display:inline-block; background:rgba(129,140,248,0.15); border:1px solid rgba(129,140,248,0.3); border-radius:0.5rem; padding:0.625rem 1.5rem; color:#818cf8; font-weight:600; font-size:0.9rem;">Auth / Onboarding</div>
+      </div>
+      <div style="text-align:center; color:#475569; margin-bottom:1.5rem; font-size:1.25rem;">&darr;</div>
+      <div style="display:grid; grid-template-columns:1fr 1fr 1fr 1fr; gap:1rem; margin-bottom:2rem;">
+        <div style="text-align:center;">
+          <div style="background:rgba(34,211,238,0.1); border:1px solid rgba(34,211,238,0.25); border-radius:0.5rem; padding:1rem 0.75rem; margin-bottom:0.75rem;">
+            <div style="color:#22d3ee; font-weight:700; font-size:0.9rem; margin-bottom:0.25rem;">Library</div>
+            <div style="color:#64748b; font-size:0.75rem; line-height:1.5;">Search &middot; Filter &middot; DICOM import &middot; Case management</div>
+          </div>
+        </div>
+        <div style="text-align:center;">
+          <div style="background:rgba(129,140,248,0.1); border:1px solid rgba(129,140,248,0.25); border-radius:0.5rem; padding:1rem 0.75rem; margin-bottom:0.75rem;">
+            <div style="color:#818cf8; font-weight:700; font-size:0.9rem; margin-bottom:0.25rem;">Viewer</div>
+            <div style="color:#64748b; font-size:0.75rem; line-height:1.5;">2D DICOM &middot; MPR &middot; Windowing &middot; Annotations</div>
+          </div>
+        </div>
+        <div style="text-align:center;">
+          <div style="background:rgba(52,211,153,0.1); border:1px solid rgba(52,211,153,0.25); border-radius:0.5rem; padding:1rem 0.75rem; margin-bottom:0.75rem;">
+            <div style="color:#34d399; font-weight:700; font-size:0.9rem; margin-bottom:0.25rem;">3D Editor</div>
+            <div style="color:#64748b; font-size:0.75rem; line-height:1.5;">Scene &middot; Objects &middot; Tools &middot; Measurements &middot; Export</div>
+          </div>
+        </div>
+        <div style="text-align:center;">
+          <div style="background:rgba(251,191,36,0.1); border:1px solid rgba(251,191,36,0.25); border-radius:0.5rem; padding:1rem 0.75rem; margin-bottom:0.75rem;">
+            <div style="color:#fbbf24; font-weight:700; font-size:0.9rem; margin-bottom:0.25rem;">XR Review</div>
+            <div style="color:#64748b; font-size:0.75rem; line-height:1.5;">HoloLens sync &middot; Spatial review &middot; Annotation &middot; Sign-off</div>
+          </div>
+        </div>
+      </div>
+      <div style="background:rgba(255,255,255,0.03); border-radius:0.5rem; padding:1rem 1.25rem; text-align:center;">
+        <p style="color:#64748b; font-size:0.8125rem; margin:0; line-height:1.6;"><strong style="color:#94a3b8;">Organizing principle:</strong> Each module maps to a distinct clinical act &mdash; finding a case, reviewing imaging, planning surgery, verifying in space. Navigation follows the surgeon's temporal workflow, not application feature categories.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- EARLY WIREFRAMES -->
+  <section style="margin-bottom:5rem;">
+    <div class="section-label" style="margin-bottom:0.5rem;">Process</div>
+    <h2 class="section-heading gradient-heading" style="margin-bottom:2rem;">Early Wireframes</h2>
+
+    <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:1rem; margin-bottom:1rem;">
+      <div>
+        <div class="img-placeholder" style="margin-bottom:0.5rem; min-height:160px; display:flex; align-items:center; justify-content:center; flex-direction:column; gap:0.5rem;"><div>Wireframe</div><div style="color:#334155; font-size:11px;">Library &mdash; Case Grid View</div></div>
+        <p style="color:#64748b; font-size:0.75rem; text-align:center;">Library &mdash; Case Grid View</p>
+      </div>
+      <div>
+        <div class="img-placeholder" style="margin-bottom:0.5rem; min-height:160px; display:flex; align-items:center; justify-content:center; flex-direction:column; gap:0.5rem;"><div>Wireframe</div><div style="color:#334155; font-size:11px;">Library &mdash; Search &amp; Filter</div></div>
+        <p style="color:#64748b; font-size:0.75rem; text-align:center;">Library &mdash; Search &amp; Filter</p>
+      </div>
+      <div>
+        <div class="img-placeholder" style="margin-bottom:0.5rem; min-height:160px; display:flex; align-items:center; justify-content:center; flex-direction:column; gap:0.5rem;"><div>Wireframe</div><div style="color:#334155; font-size:11px;">Viewer &mdash; DICOM 2D MPR</div></div>
+        <p style="color:#64748b; font-size:0.75rem; text-align:center;">Viewer &mdash; DICOM 2D MPR</p>
+      </div>
+    </div>
+    <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:1rem; margin-bottom:1rem;">
+      <div>
+        <div class="img-placeholder" style="margin-bottom:0.5rem; min-height:160px; display:flex; align-items:center; justify-content:center; flex-direction:column; gap:0.5rem;"><div>Wireframe</div><div style="color:#334155; font-size:11px;">3D Editor &mdash; Scene Layout v1</div></div>
+        <p style="color:#64748b; font-size:0.75rem; text-align:center;">3D Editor &mdash; Scene Layout v1</p>
+      </div>
+      <div>
+        <div class="img-placeholder" style="margin-bottom:0.5rem; min-height:160px; display:flex; align-items:center; justify-content:center; flex-direction:column; gap:0.5rem;"><div>Wireframe</div><div style="color:#334155; font-size:11px;">3D Editor &mdash; Tool Panel</div></div>
+        <p style="color:#64748b; font-size:0.75rem; text-align:center;">3D Editor &mdash; Tool Panel</p>
+      </div>
+      <div>
+        <div class="img-placeholder" style="margin-bottom:0.5rem; min-height:160px; display:flex; align-items:center; justify-content:center; flex-direction:column; gap:0.5rem;"><div>Wireframe</div><div style="color:#334155; font-size:11px;">XR Review &mdash; Sync &amp; Load Flow</div></div>
+        <p style="color:#64748b; font-size:0.75rem; text-align:center;">XR Review &mdash; Sync &amp; Load Flow</p>
+      </div>
+    </div>
+    <div style="display:grid; grid-template-columns:1fr 3fr; gap:1rem;">
+      <div>
+        <div class="img-placeholder" style="margin-bottom:0.5rem; min-height:160px; display:flex; align-items:center; justify-content:center; flex-direction:column; gap:0.5rem;"><div>Wireframe</div><div style="color:#334155; font-size:11px;">Auth &mdash; Login &amp; Org Setup</div></div>
+        <p style="color:#64748b; font-size:0.75rem; text-align:center;">Auth &mdash; Login &amp; Org Setup</p>
+      </div>
+      <div class="card" style="display:flex; align-items:center;">
+        <p style="color:#64748b; font-size:0.875rem; line-height:1.7; margin:0;">Early wireframes were produced in Figma at low fidelity to establish information hierarchy and validate flow logic with stakeholders before investing in visual design. All seven wireframe sets were reviewed in structured sessions with surgeons and product leads.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- THE REAL PROBLEM -->
+  <section style="margin-bottom:5rem;">
+    <div class="section-label" style="margin-bottom:0.5rem;">Problem Framing</div>
+    <h2 class="section-heading gradient-heading" style="margin-bottom:2rem;">The Real Problem</h2>
+
+    <div class="card" style="margin-bottom:2rem;">
+      <h3 style="color:white; font-weight:700; margin-bottom:1.5rem; font-size:1rem;">Current Fragmented Workflow</h3>
+      <div style="display:flex; align-items:center; gap:0; overflow-x:auto;">
+        <div style="text-align:center; flex:1; min-width:120px;">
+          <div style="background:rgba(248,113,113,0.1); border:1px solid rgba(248,113,113,0.25); border-radius:0.5rem; padding:0.75rem; margin-bottom:0.5rem;">
+            <div style="color:#f87171; font-weight:600; font-size:0.875rem;">PACS</div>
+            <div style="color:#64748b; font-size:0.7rem; margin-top:0.25rem;">Image storage</div>
+          </div>
+        </div>
+        <div style="color:#475569; padding:0 0.5rem; font-size:1.25rem; flex-shrink:0;">&rarr;</div>
+        <div style="text-align:center; flex:1; min-width:120px;">
+          <div style="background:rgba(248,113,113,0.1); border:1px solid rgba(248,113,113,0.25); border-radius:0.5rem; padding:0.75rem; margin-bottom:0.5rem;">
+            <div style="color:#f87171; font-weight:600; font-size:0.875rem;">OsiriX</div>
+            <div style="color:#64748b; font-size:0.7rem; margin-top:0.25rem;">DICOM viewer</div>
+          </div>
+        </div>
+        <div style="color:#475569; padding:0 0.5rem; font-size:1.25rem; flex-shrink:0;">&rarr;</div>
+        <div style="text-align:center; flex:1; min-width:120px;">
+          <div style="background:rgba(248,113,113,0.1); border:1px solid rgba(248,113,113,0.25); border-radius:0.5rem; padding:0.75rem; margin-bottom:0.5rem;">
+            <div style="color:#f87171; font-weight:600; font-size:0.875rem;">Blender</div>
+            <div style="color:#64748b; font-size:0.7rem; margin-top:0.25rem;">3D modeling</div>
+          </div>
+        </div>
+        <div style="color:#475569; padding:0 0.5rem; font-size:1.25rem; flex-shrink:0;">&rarr;</div>
+        <div style="text-align:center; flex:1; min-width:120px;">
+          <div style="background:rgba(248,113,113,0.1); border:1px solid rgba(248,113,113,0.25); border-radius:0.5rem; padding:0.75rem; margin-bottom:0.5rem;">
+            <div style="color:#f87171; font-weight:600; font-size:0.875rem;">Converter</div>
+            <div style="color:#64748b; font-size:0.7rem; margin-top:0.25rem;">Format export</div>
+          </div>
+        </div>
+        <div style="color:#475569; padding:0 0.5rem; font-size:1.25rem; flex-shrink:0;">&rarr;</div>
+        <div style="text-align:center; flex:1; min-width:120px;">
+          <div style="background:rgba(248,113,113,0.1); border:1px solid rgba(248,113,113,0.25); border-radius:0.5rem; padding:0.75rem; margin-bottom:0.5rem;">
+            <div style="color:#f87171; font-weight:600; font-size:0.875rem;">HoloLens</div>
+            <div style="color:#64748b; font-size:0.7rem; margin-top:0.25rem;">AR review</div>
+          </div>
+        </div>
+      </div>
+      <div style="margin-top:1rem; text-align:center; color:#64748b; font-size:0.8125rem;">Average: 47 minutes per planning session &middot; 4 separate tool licenses &middot; Manual file conversions at each step</div>
+    </div>
+
+    <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:1.25rem; margin-bottom:2rem;">
+      <div class="card" style="border-top:2px solid #f87171;">
+        <h4 style="color:#f87171; font-weight:700; margin-bottom:0.75rem; font-size:0.9375rem;">Time Cost</h4>
+        <p style="color:#94a3b8; font-size:0.875rem; line-height:1.6; margin:0;">47 minutes of administrative overhead per case, before any clinical thinking begins. Surgeons treating high-volume complex cases lose hours weekly to tool-switching.</p>
+      </div>
+      <div class="card" style="border-top:2px solid #f87171;">
+        <h4 style="color:#f87171; font-weight:700; margin-bottom:0.75rem; font-size:0.9375rem;">Error Risk</h4>
+        <p style="color:#94a3b8; font-size:0.875rem; line-height:1.6; margin:0;">Each file conversion and manual export step is an opportunity for data loss, version mismatch, or orientation errors &mdash; with no audit trail or validation feedback.</p>
+      </div>
+      <div class="card" style="border-top:2px solid #f87171;">
+        <h4 style="color:#f87171; font-weight:700; margin-bottom:0.75rem; font-size:0.9375rem;">Cognitive Load</h4>
+        <p style="color:#94a3b8; font-size:0.875rem; line-height:1.6; margin:0;">Switching between 5 distinct interface paradigms forces context-switching that interrupts clinical reasoning. Surgeons described feeling "distracted from thinking about the patient."</p>
+      </div>
+    </div>
+
+    <div style="background:linear-gradient(135deg, rgba(129,140,248,0.1), rgba(34,211,238,0.1)); border:1px solid rgba(129,140,248,0.2); border-radius:1rem; padding:2rem; text-align:center;">
+      <div class="section-label" style="margin-bottom:0.75rem;">How Might We</div>
+      <p style="color:white; font-size:1.25rem; font-weight:600; line-height:1.6; margin:0;">"How might we give surgeons a single, coherent environment to move from raw imaging data to AR-verified surgical plan &mdash; without any manual export, file conversion, or tool-switching?"</p>
+    </div>
+  </section>
+
+  <!-- RESEARCH & DISCOVERY -->
+  <section style="margin-bottom:5rem;">
+    <div class="section-label" style="margin-bottom:0.5rem;">Research</div>
+    <h2 class="section-heading gradient-heading" style="margin-bottom:2rem;">Research &amp; Discovery</h2>
+
+    <p style="color:#94a3b8; line-height:1.8; margin-bottom:2rem;">We ran a focused discovery sprint over 6 weeks at the start of the project. The goal was not to validate assumptions &mdash; we started with very few &mdash; but to build a grounded understanding of how surgical planning actually happens, what mental models surgeons use, and where the friction concentrates. We conducted contextual inquiry sessions in two hospitals, shadowing surgeons during pre-operative planning sessions and debriefing with them immediately afterward.</p>
+
+    <div style="background:rgba(34,211,238,0.06); border:1px solid rgba(34,211,238,0.2); border-radius:0.75rem; padding:1.5rem; margin-bottom:2rem;">
+      <div style="color:#22d3ee; font-size:0.75rem; font-weight:600; text-transform:uppercase; letter-spacing:0.08em; margin-bottom:0.75rem;">Core Insight</div>
+      <p style="color:#cbd5e1; font-size:1rem; line-height:1.7; margin:0; font-weight:500;">Surgeons don't think about their tools &mdash; they think about the anatomy. Any interface that forces them to think about the software is already a failure. The best interaction is the one that disappears.</p>
+    </div>
+
+    <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:1.25rem; margin-bottom:2rem;">
+      <div class="card">
+        <div style="color:#818cf8; font-size:1.25rem; margin-bottom:0.75rem;">01</div>
+        <h4 style="color:white; font-weight:700; margin-bottom:0.625rem; font-size:0.9375rem;">Time is surgical currency</h4>
+        <p style="color:#94a3b8; font-size:0.875rem; line-height:1.6; margin:0;">Every minute saved in planning is reinvested in patient time. Speed isn't a luxury &mdash; it's part of clinical quality.</p>
+      </div>
+      <div class="card">
+        <div style="color:#818cf8; font-size:1.25rem; margin-bottom:0.75rem;">02</div>
+        <h4 style="color:white; font-weight:700; margin-bottom:0.625rem; font-size:0.9375rem;">Verification is non-negotiable</h4>
+        <p style="color:#94a3b8; font-size:0.875rem; line-height:1.6; margin:0;">Surgeons need to confirm that what they see in planning matches what they will encounter in surgery. Spatial verification is not a feature &mdash; it's trust.</p>
+      </div>
+      <div class="card">
+        <div style="color:#818cf8; font-size:1.25rem; margin-bottom:0.75rem;">03</div>
+        <h4 style="color:white; font-weight:700; margin-bottom:0.625rem; font-size:0.9375rem;">Context collapse at handoff</h4>
+        <p style="color:#94a3b8; font-size:0.875rem; line-height:1.6; margin:0;">When a plan is exported and sent to a scrub tech or assistant, critical context &mdash; reasoning, annotations, orientation &mdash; is lost. The plan arrives as a file, not as knowledge.</p>
+      </div>
+    </div>
+
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:1.25rem; margin-bottom:2rem;">
+      <div class="card" style="border-left:3px solid #818cf8;">
+        <p style="color:#cbd5e1; font-style:italic; line-height:1.7; margin:0 0 0.75rem;">"I spend more time moving files around than actually thinking about the operation."</p>
+        <div style="color:#64748b; font-size:0.8125rem;">&mdash; Orthopedic Surgeon, Research Session 1</div>
+      </div>
+      <div class="card" style="border-left:3px solid #818cf8;">
+        <p style="color:#cbd5e1; font-style:italic; line-height:1.7; margin:0 0 0.75rem;">"Blender is a powerful tool but it's built for artists. I feel like I'm fighting the interface every time I use it."</p>
+        <div style="color:#64748b; font-size:0.8125rem;">&mdash; Spinal Surgeon, Research Session 2</div>
+      </div>
+      <div class="card" style="border-left:3px solid #818cf8;">
+        <p style="color:#cbd5e1; font-style:italic; line-height:1.7; margin:0 0 0.75rem;">"The HoloLens is great when it works. Half the time I can't load the model because the format is wrong or the file is too large."</p>
+        <div style="color:#64748b; font-size:0.8125rem;">&mdash; Orthopedic Surgeon, Research Session 3</div>
+      </div>
+      <div class="card" style="border-left:3px solid #818cf8;">
+        <p style="color:#cbd5e1; font-style:italic; line-height:1.7; margin:0 0 0.75rem;">"I would love to show my resident exactly what I'm seeing in the plan. Right now I just describe it over the phone."</p>
+        <div style="color:#64748b; font-size:0.8125rem;">&mdash; Senior Surgeon, Research Session 4</div>
+      </div>
+    </div>
+
+    <div class="card" style="background:rgba(255,255,255,0.02);">
+      <div class="section-label" style="margin-bottom:0.75rem;">Methodology</div>
+      <div style="display:grid; grid-template-columns:1fr 1fr 1fr 1fr; gap:1rem; text-align:center;">
+        <div>
+          <div style="color:white; font-weight:700; font-size:1.25rem; margin-bottom:0.25rem;">8</div>
+          <div style="color:#64748b; font-size:0.8125rem;">Surgeons interviewed</div>
+        </div>
+        <div>
+          <div style="color:white; font-weight:700; font-size:1.25rem; margin-bottom:0.25rem;">2</div>
+          <div style="color:#64748b; font-size:0.8125rem;">Hospital sites</div>
+        </div>
+        <div>
+          <div style="color:white; font-weight:700; font-size:1.25rem; margin-bottom:0.25rem;">6</div>
+          <div style="color:#64748b; font-size:0.8125rem;">Weeks of discovery</div>
+        </div>
+        <div>
+          <div style="color:white; font-weight:700; font-size:1.25rem; margin-bottom:0.25rem;">14</div>
+          <div style="color:#64748b; font-size:0.8125rem;">Planning sessions observed</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- USERS AND CONTEXT -->
+  <section style="margin-bottom:5rem;">
+    <div class="section-label" style="margin-bottom:0.5rem;">Personas</div>
+    <h2 class="section-heading gradient-heading" style="margin-bottom:2rem;">Users and Context</h2>
+
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:1.5rem;">
+
+      <div class="card" style="border-top:3px solid #818cf8;">
+        <div style="display:flex; align-items:center; gap:1rem; margin-bottom:1.5rem;">
+          <div style="width:52px; height:52px; border-radius:50%; background:rgba(129,140,248,0.15); border:2px solid rgba(129,140,248,0.3); display:flex; align-items:center; justify-content:center; font-size:1.5rem; flex-shrink:0;">&#128104;</div>
+          <div>
+            <div style="color:white; font-weight:700; font-size:1.0625rem;">Lead Surgeon</div>
+            <div style="color:#818cf8; font-size:0.8125rem; margin-top:0.125rem;">Primary User</div>
+          </div>
+        </div>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.75rem; margin-bottom:1.25rem;">
+          <div><div style="color:#64748b; font-size:0.75rem; text-transform:uppercase; letter-spacing:0.06em; margin-bottom:0.25rem;">Specialty</div><div style="color:#94a3b8; font-size:0.875rem;">Orthopedic / Spinal</div></div>
+          <div><div style="color:#64748b; font-size:0.75rem; text-transform:uppercase; letter-spacing:0.06em; margin-bottom:0.25rem;">Cases/week</div><div style="color:#94a3b8; font-size:0.875rem;">8&ndash;15 complex cases</div></div>
+          <div><div style="color:#64748b; font-size:0.75rem; text-transform:uppercase; letter-spacing:0.06em; margin-bottom:0.25rem;">Tech comfort</div><div style="color:#94a3b8; font-size:0.875rem;">Moderate &mdash; functional</div></div>
+          <div><div style="color:#64748b; font-size:0.75rem; text-transform:uppercase; letter-spacing:0.06em; margin-bottom:0.25rem;">Planning time</div><div style="color:#94a3b8; font-size:0.875rem;">30&ndash;60 min per case</div></div>
+        </div>
+        <div style="border-top:1px solid rgba(255,255,255,0.06); padding-top:1.25rem;">
+          <div style="color:#64748b; font-size:0.75rem; text-transform:uppercase; letter-spacing:0.06em; margin-bottom:0.5rem;">Goals</div>
+          <ul style="list-style:none; padding:0; margin:0; display:flex; flex-direction:column; gap:0.375rem;">
+            <li style="color:#94a3b8; font-size:0.875rem;">&#8226; Reduce planning time without reducing accuracy</li>
+            <li style="color:#94a3b8; font-size:0.875rem;">&#8226; Spatially verify implant placement before OR</li>
+            <li style="color:#94a3b8; font-size:0.875rem;">&#8226; Share plan context with the team clearly</li>
+          </ul>
+        </div>
+        <div style="border-top:1px solid rgba(255,255,255,0.06); padding-top:1.25rem; margin-top:1.25rem;">
+          <div style="color:#64748b; font-size:0.75rem; text-transform:uppercase; letter-spacing:0.06em; margin-bottom:0.5rem;">Frustrations</div>
+          <ul style="list-style:none; padding:0; margin:0; display:flex; flex-direction:column; gap:0.375rem;">
+            <li style="color:#94a3b8; font-size:0.875rem;">&#8226; Tool complexity unrelated to clinical task</li>
+            <li style="color:#94a3b8; font-size:0.875rem;">&#8226; Lost context at each file handoff</li>
+            <li style="color:#94a3b8; font-size:0.875rem;">&#8226; No spatial verification before the OR</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="card" style="border-top:3px solid #22d3ee;">
+        <div style="display:flex; align-items:center; gap:1rem; margin-bottom:1.5rem;">
+          <div style="width:52px; height:52px; border-radius:50%; background:rgba(34,211,238,0.1); border:2px solid rgba(34,211,238,0.25); display:flex; align-items:center; justify-content:center; font-size:1.5rem; flex-shrink:0;">&#128105;</div>
+          <div>
+            <div style="color:white; font-weight:700; font-size:1.0625rem;">Medical Assistant</div>
+            <div style="color:#22d3ee; font-size:0.8125rem; margin-top:0.125rem;">Secondary User</div>
+          </div>
+        </div>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.75rem; margin-bottom:1.25rem;">
+          <div><div style="color:#64748b; font-size:0.75rem; text-transform:uppercase; letter-spacing:0.06em; margin-bottom:0.25rem;">Role</div><div style="color:#94a3b8; font-size:0.875rem;">Resident / Scrub tech</div></div>
+          <div><div style="color:#64748b; font-size:0.75rem; text-transform:uppercase; letter-spacing:0.06em; margin-bottom:0.25rem;">Access</div><div style="color:#94a3b8; font-size:0.875rem;">Review &amp; annotation</div></div>
+          <div><div style="color:#64748b; font-size:0.75rem; text-transform:uppercase; letter-spacing:0.06em; margin-bottom:0.25rem;">Tech comfort</div><div style="color:#94a3b8; font-size:0.875rem;">High &mdash; digital native</div></div>
+          <div><div style="color:#64748b; font-size:0.75rem; text-transform:uppercase; letter-spacing:0.06em; margin-bottom:0.25rem;">Use frequency</div><div style="color:#94a3b8; font-size:0.875rem;">Review-only, pre-OR</div></div>
+        </div>
+        <div style="border-top:1px solid rgba(255,255,255,0.06); padding-top:1.25rem;">
+          <div style="color:#64748b; font-size:0.75rem; text-transform:uppercase; letter-spacing:0.06em; margin-bottom:0.5rem;">Goals</div>
+          <ul style="list-style:none; padding:0; margin:0; display:flex; flex-direction:column; gap:0.375rem;">
+            <li style="color:#94a3b8; font-size:0.875rem;">&#8226; Understand the surgical plan clearly</li>
+            <li style="color:#94a3b8; font-size:0.875rem;">&#8226; Prepare instrument trays correctly</li>
+            <li style="color:#94a3b8; font-size:0.875rem;">&#8226; Flag concerns before the operation</li>
+          </ul>
+        </div>
+        <div style="border-top:1px solid rgba(255,255,255,0.06); padding-top:1.25rem; margin-top:1.25rem;">
+          <div style="color:#64748b; font-size:0.75rem; text-transform:uppercase; letter-spacing:0.06em; margin-bottom:0.5rem;">Frustrations</div>
+          <ul style="list-style:none; padding:0; margin:0; display:flex; flex-direction:column; gap:0.375rem;">
+            <li style="color:#94a3b8; font-size:0.875rem;">&#8226; Receiving plans as raw files with no context</li>
+            <li style="color:#94a3b8; font-size:0.875rem;">&#8226; Unable to view 3D model without software license</li>
+            <li style="color:#94a3b8; font-size:0.875rem;">&#8226; No channel to ask clarifying questions on the plan</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PAIN POINTS & OPPORTUNITIES -->
+  <section style="margin-bottom:5rem;">
+    <div class="section-label" style="margin-bottom:0.5rem;">Analysis</div>
+    <h2 class="section-heading gradient-heading" style="margin-bottom:2rem;">Pain Points &amp; Opportunities</h2>
+
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:1.5rem; margin-bottom:1.5rem;">
+      <div class="card" style="border-top:2px solid #f87171;">
+        <h3 style="color:#f87171; font-weight:700; margin-bottom:1.25rem; font-size:1rem;">Key Pain Points</h3>
+        <div style="display:flex; flex-direction:column; gap:1rem;">
+          <div style="display:flex; gap:0.875rem; align-items:flex-start;"><div style="background:rgba(248,113,113,0.15); border-radius:0.375rem; padding:0.25rem 0.5rem; color:#f87171; font-size:0.75rem; font-weight:700; flex-shrink:0; margin-top:1px;">P1</div><p style="color:#94a3b8; font-size:0.875rem; line-height:1.6; margin:0;">Forced context-switching between 4&ndash;6 tools destroys focused clinical reasoning time</p></div>
+          <div style="display:flex; gap:0.875rem; align-items:flex-start;"><div style="background:rgba(248,113,113,0.15); border-radius:0.375rem; padding:0.25rem 0.5rem; color:#f87171; font-size:0.75rem; font-weight:700; flex-shrink:0; margin-top:1px;">P2</div><p style="color:#94a3b8; font-size:0.875rem; line-height:1.6; margin:0;">Manual file conversion introduces errors and has no validation or audit mechanism</p></div>
+          <div style="display:flex; gap:0.875rem; align-items:flex-start;"><div style="background:rgba(248,113,113,0.15); border-radius:0.375rem; padding:0.25rem 0.5rem; color:#f87171; font-size:0.75rem; font-weight:700; flex-shrink:0; margin-top:1px;">P3</div><p style="color:#94a3b8; font-size:0.875rem; line-height:1.6; margin:0;">No collaborative planning &mdash; teams work in isolation, increasing miscommunication risk</p></div>
+          <div style="display:flex; gap:0.875rem; align-items:flex-start;"><div style="background:rgba(248,113,113,0.15); border-radius:0.375rem; padding:0.25rem 0.5rem; color:#f87171; font-size:0.75rem; font-weight:700; flex-shrink:0; margin-top:1px;">P4</div><p style="color:#94a3b8; font-size:0.875rem; line-height:1.6; margin:0;">Plan context (reasoning, annotations, orientation) is lost at each export/handoff step</p></div>
+          <div style="display:flex; gap:0.875rem; align-items:flex-start;"><div style="background:rgba(248,113,113,0.15); border-radius:0.375rem; padding:0.25rem 0.5rem; color:#f87171; font-size:0.75rem; font-weight:700; flex-shrink:0; margin-top:1px;">P5</div><p style="color:#94a3b8; font-size:0.875rem; line-height:1.6; margin:0;">AR verification (HoloLens) is unreliable due to format compatibility and file size issues</p></div>
+        </div>
+      </div>
+
+      <div class="card" style="border-top:2px solid #34d399;">
+        <h3 style="color:#34d399; font-weight:700; margin-bottom:1.25rem; font-size:1rem;">Design Opportunities</h3>
+        <div style="display:flex; flex-direction:column; gap:1rem;">
+          <div style="display:flex; gap:0.875rem; align-items:flex-start;"><div style="background:rgba(52,211,153,0.15); border-radius:0.375rem; padding:0.25rem 0.5rem; color:#34d399; font-size:0.75rem; font-weight:700; flex-shrink:0; margin-top:1px;">O1</div><p style="color:#94a3b8; font-size:0.875rem; line-height:1.6; margin:0;">Unify DICOM viewing, 3D editing, and AR review in a single web environment &mdash; eliminate all tool-switching</p></div>
+          <div style="display:flex; gap:0.875rem; align-items:flex-start;"><div style="background:rgba(52,211,153,0.15); border-radius:0.375rem; padding:0.25rem 0.5rem; color:#34d399; font-size:0.75rem; font-weight:700; flex-shrink:0; margin-top:1px;">O2</div><p style="color:#94a3b8; font-size:0.875rem; line-height:1.6; margin:0;">Automate all format conversion with server-side processing &mdash; zero manual export steps</p></div>
+          <div style="display:flex; gap:0.875rem; align-items:flex-start;"><div style="background:rgba(52,211,153,0.15); border-radius:0.375rem; padding:0.25rem 0.5rem; color:#34d399; font-size:0.75rem; font-weight:700; flex-shrink:0; margin-top:1px;">O3</div><p style="color:#94a3b8; font-size:0.875rem; line-height:1.6; margin:0;">Build shared plan space where surgeon + assistant can review and annotate the same model simultaneously</p></div>
+          <div style="display:flex; gap:0.875rem; align-items:flex-start;"><div style="background:rgba(52,211,153,0.15); border-radius:0.375rem; padding:0.25rem 0.5rem; color:#34d399; font-size:0.75rem; font-weight:700; flex-shrink:0; margin-top:1px;">O4</div><p style="color:#94a3b8; font-size:0.875rem; line-height:1.6; margin:0;">Persist all annotations, reasoning, and orientation data through the entire workflow from import to AR</p></div>
+          <div style="display:flex; gap:0.875rem; align-items:flex-start;"><div style="background:rgba(52,211,153,0.15); border-radius:0.375rem; padding:0.25rem 0.5rem; color:#34d399; font-size:0.75rem; font-weight:700; flex-shrink:0; margin-top:1px;">O5</div><p style="color:#94a3b8; font-size:0.875rem; line-height:1.6; margin:0;">Implement one-click AR sync with automatic format optimization &mdash; make HoloLens loading reliable</p></div>
+        </div>
+      </div>
+    </div>
+
+    <div style="background:linear-gradient(135deg, rgba(129,140,248,0.08), rgba(34,211,238,0.08)); border:1px solid rgba(129,140,248,0.15); border-radius:1rem; padding:2rem; text-align:center;">
+      <div style="font-size:3rem; font-weight:700; background:linear-gradient(to right, #818cf8, #22d3ee); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; margin-bottom:0.5rem;">80%</div>
+      <p style="color:#94a3b8; font-size:0.9375rem; margin:0; line-height:1.6;">of surgeon frustration mapped to transitions between tools &mdash; not to any single tool's capabilities. The problem was the seams, not the features.</p>
+    </div>
+  </section>
+
+  <!-- DESIGN STRATEGY -->
+  <section style="margin-bottom:5rem;">
+    <div class="section-label" style="margin-bottom:0.5rem;">Strategy</div>
+    <h2 class="section-heading gradient-heading" style="margin-bottom:2rem;">Design Strategy</h2>
+
+    <div style="background:rgba(248,113,113,0.05); border:1px solid rgba(248,113,113,0.15); border-radius:1rem; padding:2rem; margin-bottom:2rem;">
+      <div style="color:#f87171; font-size:0.75rem; font-weight:600; text-transform:uppercase; letter-spacing:0.08em; margin-bottom:0.75rem;">Crisis Moment</div>
+      <p style="color:#cbd5e1; font-size:1rem; line-height:1.7; margin:0;">At week 8, after the first round of low-fi testing, we discovered that surgeons found the 3D editor interface &mdash; despite being well-organized &mdash; still too far removed from how they think about anatomy. A participant said: "I understand what all these controls do, but I don't understand why I'm touching controls at all. I just want to move this bone." This forced us to rebuild the interaction model from the object-control layer upward.</p>
+    </div>
+
+    <p style="color:#94a3b8; line-height:1.8; margin-bottom:2rem;">The crisis moment reoriented our entire design strategy. Instead of designing an editor and layering anatomy concepts on top, we designed from anatomy outward &mdash; the objects in the scene are anatomical structures first, and editable objects second. The controls surface only when contextually relevant to the selected anatomy. This required close collaboration with the 3D engineers to build a context-aware tool system.</p>
+
+    <div class="ba-grid" style="margin-bottom:3rem;">
+      <div class="ba-col before">
+        <h3>Before: Tool-centric model</h3>
+        <div class="ba-item"><div class="ba-num">1.</div><div class="ba-text">Open tool panel &rarr; select a tool mode &rarr; then interact with anatomy</div></div>
+        <div class="ba-item"><div class="ba-num">2.</div><div class="ba-text">All tools always visible regardless of context or selected object</div></div>
+        <div class="ba-item"><div class="ba-num">3.</div><div class="ba-text">User must know tool names and modes before they can accomplish anything</div></div>
+        <div class="ba-item"><div class="ba-num">4.</div><div class="ba-text">Scene hierarchy uses 3D software conventions &mdash; objects, meshes, modifiers</div></div>
+      </div>
+      <div class="ba-col after">
+        <h3>After: Anatomy-centric model</h3>
+        <div class="ba-item"><div class="ba-num">1.</div><div class="ba-text">Select anatomical structure &rarr; relevant tools surface contextually</div></div>
+        <div class="ba-item"><div class="ba-num">2.</div><div class="ba-text">Tool panel adapts to selection &mdash; irrelevant controls hidden</div></div>
+        <div class="ba-item"><div class="ba-num">3.</div><div class="ba-text">Primary verbs are anatomical: position, orient, measure, annotate</div></div>
+        <div class="ba-item"><div class="ba-num">4.</div><div class="ba-text">Scene hierarchy uses clinical labels &mdash; Femoral Head, L4 Vertebra, Implant</div></div>
+      </div>
+    </div>
+
+    <h3 style="color:white; font-weight:700; font-size:1.25rem; margin-bottom:1.5rem;">5 Key UX Decisions</h3>
+
+    <div class="decision-card">
+      <div class="decision-num">Decision 01</div>
+      <h3>Anatomy-first scene hierarchy</h3>
+      <p>Structure the scene panel around anatomical regions (spine segment, joint, implant) rather than 3D object types. Labels use clinical terminology sourced directly from surgeon vocabulary captured during research sessions.</p>
+      <div class="img-placeholder" style="min-height:180px; display:flex; align-items:center; justify-content:center;">Scene Hierarchy &mdash; Anatomy-First Structure</div>
+    </div>
+
+    <div class="decision-card">
+      <div class="decision-num">Decision 02</div>
+      <h3>Context-sensitive tool surfacing</h3>
+      <p>Tools appear only when relevant to the currently selected object and editing state. A bone segment selected in "review" mode shows measurement tools. The same segment in "edit" mode shows position and orientation controls. No mode-switching UI required.</p>
+      <div class="img-placeholder" style="min-height:180px; display:flex; align-items:center; justify-content:center;">Context-Sensitive Tool Panel &mdash; State Comparison</div>
+    </div>
+
+    <div class="decision-card">
+      <div class="decision-num">Decision 03</div>
+      <h3>Named checkpoint save model</h3>
+      <p>Replace auto-save with explicit named checkpoints that require a brief label ("Pre-op positioning," "Final implant placement"). Each checkpoint is timestamped and attributed. Only named checkpoints can be sent to XR Review &mdash; preventing accidental review of interim states.</p>
+      <div class="img-placeholder" style="min-height:180px; display:flex; align-items:center; justify-content:center;">Checkpoint Save Dialog &mdash; Naming &amp; Review Flow</div>
+    </div>
+
+    <div class="decision-card">
+      <div class="decision-num">Decision 04</div>
+      <h3>Single-action XR sync</h3>
+      <p>Sending a plan to the HoloLens is a single button action. All format conversion, optimization, and transmission happens server-side. The user sees a status indicator and receives confirmation when the headset is loaded and ready. No file management required.</p>
+      <div class="img-placeholder" style="min-height:180px; display:flex; align-items:center; justify-content:center;">XR Sync &mdash; One-Click to HoloLens Flow</div>
+    </div>
+
+    <div class="decision-card">
+      <div class="decision-num">Decision 05</div>
+      <h3>Shared plan with role-differentiated access</h3>
+      <p>All team members can view and annotate the same plan simultaneously. Surgeons have edit rights. Assistants and residents have comment-and-query rights. Annotations are attributed and persistent &mdash; surviving the XR handoff into the AR view on the headset.</p>
+      <div class="img-placeholder" style="min-height:180px; display:flex; align-items:center; justify-content:center;">Shared Plan View &mdash; Role Differentiation &amp; Annotations</div>
+    </div>
+
+  </section>
+
+  <!-- HIGH-FIDELITY PROTOTYPES -->
+  <section style="margin-bottom:5rem;">
+    <div class="section-label" style="margin-bottom:0.5rem;">Deliverables</div>
+    <h2 class="section-heading gradient-heading" style="margin-bottom:2rem;">High-Fidelity Prototypes</h2>
+
+    <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:1rem; margin-bottom:1rem;">
+      <div><div class="img-placeholder" style="min-height:140px; display:flex; align-items:center; justify-content:center; margin-bottom:0.5rem;">Library &mdash; Empty State</div><p style="color:#64748b; font-size:0.75rem; text-align:center;">Library &mdash; Empty State</p></div>
+      <div><div class="img-placeholder" style="min-height:140px; display:flex; align-items:center; justify-content:center; margin-bottom:0.5rem;">Library &mdash; Case Grid</div><p style="color:#64748b; font-size:0.75rem; text-align:center;">Library &mdash; Case Grid</p></div>
+      <div><div class="img-placeholder" style="min-height:140px; display:flex; align-items:center; justify-content:center; margin-bottom:0.5rem;">Library &mdash; Search Active</div><p style="color:#64748b; font-size:0.75rem; text-align:center;">Library &mdash; Search Active</p></div>
+    </div>
+    <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:1rem; margin-bottom:1rem;">
+      <div><div class="img-placeholder" style="min-height:140px; display:flex; align-items:center; justify-content:center; margin-bottom:0.5rem;">DICOM Viewer &mdash; MPR View</div><p style="color:#64748b; font-size:0.75rem; text-align:center;">DICOM Viewer &mdash; MPR View</p></div>
+      <div><div class="img-placeholder" style="min-height:140px; display:flex; align-items:center; justify-content:center; margin-bottom:0.5rem;">Viewer &mdash; Windowing Controls</div><p style="color:#64748b; font-size:0.75rem; text-align:center;">Viewer &mdash; Windowing Controls</p></div>
+      <div><div class="img-placeholder" style="min-height:140px; display:flex; align-items:center; justify-content:center; margin-bottom:0.5rem;">Viewer &mdash; Annotation Mode</div><p style="color:#64748b; font-size:0.75rem; text-align:center;">Viewer &mdash; Annotation Mode</p></div>
+    </div>
+    <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:1rem; margin-bottom:1rem;">
+      <div><div class="img-placeholder" style="min-height:140px; display:flex; align-items:center; justify-content:center; margin-bottom:0.5rem;">3D Editor &mdash; Default View</div><p style="color:#64748b; font-size:0.75rem; text-align:center;">3D Editor &mdash; Default View</p></div>
+      <div><div class="img-placeholder" style="min-height:140px; display:flex; align-items:center; justify-content:center; margin-bottom:0.5rem;">3D Editor &mdash; Object Selected</div><p style="color:#64748b; font-size:0.75rem; text-align:center;">3D Editor &mdash; Object Selected</p></div>
+      <div><div class="img-placeholder" style="min-height:140px; display:flex; align-items:center; justify-content:center; margin-bottom:0.5rem;">3D Editor &mdash; Measurement Mode</div><p style="color:#64748b; font-size:0.75rem; text-align:center;">3D Editor &mdash; Measurement Mode</p></div>
+    </div>
+    <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:1rem; margin-bottom:1rem;">
+      <div><div class="img-placeholder" style="min-height:140px; display:flex; align-items:center; justify-content:center; margin-bottom:0.5rem;">3D Editor &mdash; Scene Hierarchy Panel</div><p style="color:#64748b; font-size:0.75rem; text-align:center;">3D Editor &mdash; Scene Hierarchy Panel</p></div>
+      <div><div class="img-placeholder" style="min-height:140px; display:flex; align-items:center; justify-content:center; margin-bottom:0.5rem;">Save Checkpoint &mdash; Dialog</div><p style="color:#64748b; font-size:0.75rem; text-align:center;">Save Checkpoint &mdash; Dialog</p></div>
+      <div><div class="img-placeholder" style="min-height:140px; display:flex; align-items:center; justify-content:center; margin-bottom:0.5rem;">Checkpoint &mdash; History View</div><p style="color:#64748b; font-size:0.75rem; text-align:center;">Checkpoint &mdash; History View</p></div>
+    </div>
+    <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:1rem;">
+      <div><div class="img-placeholder" style="min-height:140px; display:flex; align-items:center; justify-content:center; margin-bottom:0.5rem;">XR Review &mdash; Sync Panel</div><p style="color:#64748b; font-size:0.75rem; text-align:center;">XR Review &mdash; Sync Panel</p></div>
+      <div><div class="img-placeholder" style="min-height:140px; display:flex; align-items:center; justify-content:center; margin-bottom:0.5rem;">XR Review &mdash; HoloLens Loading</div><p style="color:#64748b; font-size:0.75rem; text-align:center;">XR Review &mdash; HoloLens Loading</p></div>
+      <div><div class="img-placeholder" style="min-height:140px; display:flex; align-items:center; justify-content:center; margin-bottom:0.5rem;">Shared Plan &mdash; Team Annotations</div><p style="color:#64748b; font-size:0.75rem; text-align:center;">Shared Plan &mdash; Team Annotations</p></div>
+    </div>
+  </section>
+
+  <!-- DESIGN ITERATIONS -->
+  <section style="margin-bottom:5rem;">
+    <div class="section-label" style="margin-bottom:0.5rem;">Evolution</div>
+    <h2 class="section-heading gradient-heading" style="margin-bottom:2rem;">Design Iterations</h2>
+
+    <!-- Iteration 1 -->
+    <div style="margin-bottom:3rem;">
+      <div style="display:flex; align-items:center; gap:1rem; margin-bottom:1.25rem;">
+        <div style="background:rgba(129,140,248,0.15); border:1px solid rgba(129,140,248,0.25); border-radius:999px; padding:0.25rem 0.875rem; color:#818cf8; font-size:0.8125rem; font-weight:600; white-space:nowrap;">Iteration 01</div>
+        <h3 style="color:white; font-weight:700; font-size:1.125rem; margin:0;">Scene Hierarchy</h3>
+      </div>
+      <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:1rem; margin-bottom:1rem;">
+        <div><div class="img-placeholder" style="min-height:140px; display:flex; align-items:center; justify-content:center; margin-bottom:0.5rem;">Hierarchy v1 &mdash; Technical Tree</div><p style="color:#64748b; font-size:0.75rem; text-align:center;">v1 &mdash; Technical object tree (rejected)</p></div>
+        <div><div class="img-placeholder" style="min-height:140px; display:flex; align-items:center; justify-content:center; margin-bottom:0.5rem;">Hierarchy v2 &mdash; Hybrid Labels</div><p style="color:#64748b; font-size:0.75rem; text-align:center;">v2 &mdash; Hybrid labels (tested, mixed results)</p></div>
+        <div><div class="img-placeholder" style="min-height:140px; display:flex; align-items:center; justify-content:center; margin-bottom:0.5rem;">Hierarchy v3 &mdash; Anatomy-First</div><p style="color:#64748b; font-size:0.75rem; text-align:center;">v3 &mdash; Pure anatomy-first (shipped)</p></div>
+      </div>
+      <div class="card" style="background:rgba(255,255,255,0.02);">
+        <p style="color:#94a3b8; font-size:0.875rem; line-height:1.7; margin:0;"><strong style="color:#cbd5e1;">Finding:</strong> v1 (technical tree) caused navigation errors for all surgeons. v2 (hybrid) reduced errors but created confusion around mixed terminology. v3 (anatomy-first) reduced navigation errors by 60% and was described as "finally feeling like mine" by three participants.</p>
+      </div>
+    </div>
+
+    <!-- Iteration 2 -->
+    <div style="margin-bottom:3rem;">
+      <div style="display:flex; align-items:center; gap:1rem; margin-bottom:1.25rem;">
+        <div style="background:rgba(129,140,248,0.15); border:1px solid rgba(129,140,248,0.25); border-radius:999px; padding:0.25rem 0.875rem; color:#818cf8; font-size:0.8125rem; font-weight:600; white-space:nowrap;">Iteration 02</div>
+        <h3 style="color:white; font-weight:700; font-size:1.125rem; margin:0;">Save Behavior</h3>
+      </div>
+      <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:1rem; margin-bottom:1rem;">
+        <div><div class="img-placeholder" style="min-height:140px; display:flex; align-items:center; justify-content:center; margin-bottom:0.5rem;">Save v1 &mdash; Auto-save Banner</div><p style="color:#64748b; font-size:0.75rem; text-align:center;">v1 &mdash; Auto-save with status banner</p></div>
+        <div><div class="img-placeholder" style="min-height:140px; display:flex; align-items:center; justify-content:center; margin-bottom:0.5rem;">Save v2 &mdash; Manual Save Button</div><p style="color:#64748b; font-size:0.75rem; text-align:center;">v2 &mdash; Manual save button (no naming)</p></div>
+        <div><div class="img-placeholder" style="min-height:140px; display:flex; align-items:center; justify-content:center; margin-bottom:0.5rem;">Save v3 &mdash; Named Checkpoint</div><p style="color:#64748b; font-size:0.75rem; text-align:center;">v3 &mdash; Named checkpoint dialog (shipped)</p></div>
+      </div>
+      <div class="card" style="background:rgba(255,255,255,0.02);">
+        <p style="color:#94a3b8; font-size:0.875rem; line-height:1.7; margin:0;"><strong style="color:#cbd5e1;">Finding:</strong> Auto-save created anxiety ("I don't know what version is saved") and regulatory concerns. Manual save without naming led to version confusion ("which one is the final?"). Named checkpoints added a brief friction that users described as appropriate &mdash; "It feels deliberate, like signing a form."</p>
+      </div>
+    </div>
+
+    <!-- Iteration 3 -->
+    <div>
+      <div style="display:flex; align-items:center; gap:1rem; margin-bottom:1.25rem;">
+        <div style="background:rgba(129,140,248,0.15); border:1px solid rgba(129,140,248,0.25); border-radius:999px; padding:0.25rem 0.875rem; color:#818cf8; font-size:0.8125rem; font-weight:600; white-space:nowrap;">Iteration 03</div>
+        <h3 style="color:white; font-weight:700; font-size:1.125rem; margin:0;">Spatial Controls</h3>
+      </div>
+      <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:1rem; margin-bottom:1rem;">
+        <div><div class="img-placeholder" style="min-height:140px; display:flex; align-items:center; justify-content:center; margin-bottom:0.5rem;">Spatial v1 &mdash; Gizmo Controls</div><p style="color:#64748b; font-size:0.75rem; text-align:center;">v1 &mdash; 3D gizmo (CAD-style) controls</p></div>
+        <div><div class="img-placeholder" style="min-height:140px; display:flex; align-items:center; justify-content:center; margin-bottom:0.5rem;">Spatial v2 &mdash; Numeric Input</div><p style="color:#64748b; font-size:0.75rem; text-align:center;">v2 &mdash; Numeric coordinate input panels</p></div>
+        <div><div class="img-placeholder" style="min-height:140px; display:flex; align-items:center; justify-content:center; margin-bottom:0.5rem;">Spatial v3 &mdash; Hybrid Contextual</div><p style="color:#64748b; font-size:0.75rem; text-align:center;">v3 &mdash; Hybrid: gizmo + labeled sliders</p></div>
+      </div>
+      <div class="card" style="background:rgba(255,255,255,0.02);">
+        <p style="color:#94a3b8; font-size:0.875rem; line-height:1.7; margin:0;"><strong style="color:#cbd5e1;">Finding:</strong> Gizmo-only controls (v1) worked for experienced 3D users but failed for surgeons without that background. Numeric input only (v2) was precise but slow and disconnected from spatial intuition. The hybrid model (v3) provided spatial directness via gizmo with labeled confirmation via sliders, reducing placement errors by 40% in task testing.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- WORKFLOW TRANSFORMATION -->
+  <section style="margin-bottom:5rem;">
+    <div class="section-label" style="margin-bottom:0.5rem;">Impact</div>
+    <h2 class="section-heading gradient-heading" style="margin-bottom:2rem;">Workflow Transformation</h2>
+
+    <div class="ba-grid">
+      <div class="ba-col before">
+        <h3>Before XR Editor</h3>
+        <div class="ba-item"><div class="ba-num">1.</div><div class="ba-text">Log into PACS, locate patient folder, download DICOM series to local machine</div></div>
+        <div class="ba-item"><div class="ba-num">2.</div><div class="ba-text">Open OsiriX, import DICOM files, configure windowing settings per study</div></div>
+        <div class="ba-item"><div class="ba-num">3.</div><div class="ba-text">Export segmented surface as STL, open in Blender, perform manual cleanup</div></div>
+        <div class="ba-item"><div class="ba-num">4.</div><div class="ba-text">Position implant models from separate library, export scene as GLTF</div></div>
+        <div class="ba-item"><div class="ba-num">5.</div><div class="ba-text">Run format converter, optimize polygon count, transfer file to HoloLens via USB or FTP</div></div>
+        <div class="ba-item"><div class="ba-num">6.</div><div class="ba-text">Load on HoloLens, verify spatial placement &mdash; if wrong, repeat from step 3</div></div>
+        <div style="margin-top:1.5rem; padding-top:1.5rem; border-top:1px solid rgba(248,113,113,0.2);">
+          <div class="ba-num" style="font-size:2rem;">47 min</div>
+          <div class="ba-text">Average per planning session</div>
+        </div>
+      </div>
+      <div class="ba-col after">
+        <h3>After XR Editor</h3>
+        <div class="ba-item"><div class="ba-num">1.</div><div class="ba-text">Open XR Editor, search patient case &mdash; DICOM auto-loaded from PACS integration</div></div>
+        <div class="ba-item"><div class="ba-num">2.</div><div class="ba-text">Review 2D imaging in Viewer, switch to 3D Editor &mdash; model already reconstructed server-side</div></div>
+        <div class="ba-item"><div class="ba-num">3.</div><div class="ba-text">Select anatomy, position implant using contextual controls, add annotations</div></div>
+        <div class="ba-item"><div class="ba-num">4.</div><div class="ba-text">Save named checkpoint &mdash; plan locked and attributed</div></div>
+        <div class="ba-item"><div class="ba-num">5.</div><div class="ba-text">Press "Send to XR" &mdash; one action, server handles optimization and transmission</div></div>
+        <div class="ba-item"><div class="ba-num">6.</div><div class="ba-text">HoloLens confirms ready &mdash; review in AR, annotations visible in headset</div></div>
+        <div style="margin-top:1.5rem; padding-top:1.5rem; border-top:1px solid rgba(52,211,153,0.2);">
+          <div class="ba-num" style="font-size:2rem;">12 min</div>
+          <div class="ba-text">Average per planning session</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- RESULTS AND IMPACT -->
+  <section style="margin-bottom:5rem;">
+    <div class="section-label" style="margin-bottom:0.5rem;">Outcomes</div>
+    <h2 class="section-heading gradient-heading" style="margin-bottom:2rem;">Results and Impact</h2>
+
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:1.25rem; margin-bottom:2rem;">
+      <div class="card" style="text-align:center; background:linear-gradient(135deg, rgba(129,140,248,0.08), rgba(34,211,238,0.05));">
+        <div style="font-size:3rem; font-weight:700; background:linear-gradient(to right, #818cf8, #22d3ee); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; line-height:1.1; margin-bottom:0.5rem;">74%</div>
+        <div style="color:white; font-weight:600; margin-bottom:0.375rem;">Reduction in planning time</div>
+        <div style="color:#64748b; font-size:0.8125rem;">47 min &rarr; 12 min average per case</div>
+      </div>
+      <div class="card" style="text-align:center; background:linear-gradient(135deg, rgba(52,211,153,0.06), rgba(34,211,238,0.04));">
+        <div style="font-size:3rem; font-weight:700; color:#34d399; line-height:1.1; margin-bottom:0.5rem;">4&rarr;1</div>
+        <div style="color:white; font-weight:600; margin-bottom:0.375rem;">Tools consolidated</div>
+        <div style="color:#64748b; font-size:0.8125rem;">Full workflow in a single environment</div>
+      </div>
+      <div class="card" style="text-align:center; background:linear-gradient(135deg, rgba(251,191,36,0.06), rgba(34,211,238,0.04));">
+        <div style="font-size:3rem; font-weight:700; color:#fbbf24; line-height:1.1; margin-bottom:0.5rem;">76%</div>
+        <div style="color:white; font-weight:600; margin-bottom:0.375rem;">Faster case discovery</div>
+        <div style="color:#64748b; font-size:0.8125rem;">34s &rarr; 8s to locate and open a case</div>
+      </div>
+      <div class="card" style="text-align:center; background:linear-gradient(135deg, rgba(248,113,113,0.06), rgba(129,140,248,0.04));">
+        <div style="font-size:3rem; font-weight:700; color:#f87171; line-height:1.1; margin-bottom:0.5rem;">0</div>
+        <div style="color:white; font-weight:600; margin-bottom:0.375rem;">Manual file exports required</div>
+        <div style="color:#64748b; font-size:0.8125rem;">Full pipeline automated end-to-end</div>
+      </div>
+    </div>
+
+    <div style="background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.06); border-radius:0.75rem; padding:1.25rem 1.5rem; margin-bottom:1.5rem;">
+      <p style="color:#64748b; font-size:0.8125rem; line-height:1.6; margin:0;"><strong style="color:#94a3b8;">Disclaimer:</strong> Metrics are drawn from internal usability testing with 8 participants across 2 hospital pilots. Results reflect observed task completion times in controlled sessions and self-reported qualitative feedback. This is not a published clinical study. Data has been generalized per NDA requirements.</p>
+    </div>
+
+    <div class="card" style="margin-bottom:1.5rem;">
+      <div class="section-label" style="margin-bottom:0.75rem;">Measurement Methodology</div>
+      <p style="color:#94a3b8; font-size:0.875rem; line-height:1.7; margin:0;">Timing data was captured by a facilitator with a stopwatch during moderated usability sessions. Participants were given identical planning tasks (locate case, review imaging, position implant, send to AR) and completed them first in their existing workflow, then in XR Editor. Participants were blinded to which metrics we were capturing. Qualitative data was coded from session recordings and debrief interviews.</p>
+    </div>
+
+    <div style="background:linear-gradient(135deg, rgba(129,140,248,0.06), rgba(34,211,238,0.06)); border:1px solid rgba(129,140,248,0.15); border-radius:1rem; padding:2rem;">
+      <div class="section-label" style="margin-bottom:0.75rem;">Business Context</div>
+      <p style="color:#94a3b8; font-size:0.9375rem; line-height:1.7; margin:0;">Following the pilot, the client secured a second round of institutional funding and expanded the pilot to three additional hospital networks in Q2 of the following year. The product is currently in active regulatory submission for CE marking in the EU. The UX architecture developed during this project was cited in internal documentation as a key differentiator in hospital procurement conversations.</p>
+    </div>
+  </section>
+
+  <!-- KEY LEARNINGS -->
+  <section style="margin-bottom:7rem;">
+    <div class="section-label" style="margin-bottom:0.5rem;">Reflection</div>
+    <h2 class="section-heading gradient-heading" style="margin-bottom:2rem;">Key Learnings</h2>
+
+    <div style="background:linear-gradient(135deg, rgba(129,140,248,0.08), rgba(34,211,238,0.06)); border:1px solid rgba(129,140,248,0.2); border-radius:1rem; padding:2.5rem; margin-bottom:2.5rem; text-align:center;">
+      <p style="color:white; font-size:1.375rem; font-weight:500; font-style:italic; line-height:1.7; margin:0 0 1rem;">"For the first time, I feel like I'm actually planning the surgery &mdash; not managing software."</p>
+      <div style="color:#64748b; font-size:0.875rem;">&mdash; Lead Surgeon, Pilot Hospital Network B &middot; Post-session debrief</div>
+    </div>
+
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:1.25rem; margin-bottom:2.5rem;">
+      <div class="card">
+        <div style="color:#818cf8; font-weight:700; font-size:1.5rem; margin-bottom:0.75rem;">01</div>
+        <h4 style="color:white; font-weight:700; margin-bottom:0.75rem; font-size:1rem;">Domain immersion is not optional in MedTech</h4>
+        <p style="color:#94a3b8; font-size:0.875rem; line-height:1.7; margin:0;">I didn't understand what a DICOM series actually was until week 3. I didn't understand the difference between a segmentation and a mesh until week 5. Without that domain knowledge, I couldn't have evaluated whether an interaction model made clinical sense. In regulated domains, UX work requires genuine technical fluency.</p>
+      </div>
+      <div class="card">
+        <div style="color:#818cf8; font-weight:700; font-size:1.5rem; margin-bottom:0.75rem;">02</div>
+        <h4 style="color:white; font-weight:700; margin-bottom:0.75rem; font-size:1rem;">The right abstraction is a design decision</h4>
+        <p style="color:#94a3b8; font-size:0.875rem; line-height:1.7; margin:0;">The anatomy-first hierarchy wasn't a labeling change &mdash; it was a fundamental reframing of what the product is. Choosing what to expose and what to hide from the user is design's core power. The wrong abstraction (technical objects) made the product feel hostile. The right abstraction (anatomical structures) made it feel like an extension of clinical thinking.</p>
+      </div>
+      <div class="card">
+        <div style="color:#818cf8; font-weight:700; font-size:1.5rem; margin-bottom:0.75rem;">03</div>
+        <h4 style="color:white; font-weight:700; margin-bottom:0.75rem; font-size:1rem;">Friction can be a feature</h4>
+        <p style="color:#94a3b8; font-size:0.875rem; line-height:1.7; margin:0;">The named checkpoint system added a deliberate pause to the save flow. In a consumer product, I would have fought to remove it. In a clinical planning tool, it became a trust-building mechanism. The brief, intentional friction communicated seriousness and control &mdash; qualities that matter enormously in a domain where errors have physical consequences.</p>
+      </div>
+      <div class="card">
+        <div style="color:#818cf8; font-weight:700; font-size:1.5rem; margin-bottom:0.75rem;">04</div>
+        <h4 style="color:white; font-weight:700; margin-bottom:0.75rem; font-size:1rem;">UX and engineering constraints are the same constraint</h4>
+        <p style="color:#94a3b8; font-size:0.875rem; line-height:1.7; margin:0;">The one-click XR sync required significant server-side infrastructure. Early in the project, I designed it as a user-facing simplification and assumed the engineering would follow. In practice, I had to deeply understand the conversion pipeline to design the status model correctly. Designing the loading states and error conditions required knowing what could actually fail. UX decisions were engineering decisions and vice versa.</p>
+      </div>
+    </div>
+
+    <div class="card" style="border-left:3px solid #22d3ee;">
+      <div class="section-label" style="margin-bottom:0.75rem;">Personal Note</div>
+      <p style="color:#94a3b8; line-height:1.8; margin:0;">This was the most technically and ethically demanding project I've worked on. Designing for a context where your decisions contribute to patient outcomes changes how you approach every choice. I came out of it with a much more serious relationship to the craft &mdash; and a deeper respect for the surgeons who trusted us with their workflow. I'm proud of what the team built. I'm also aware that the real test isn't a usability session &mdash; it's a patient on a table. That awareness is something I carry forward.</p>
+    </div>
+  </section>
+
+</main>
+
+<footer style="border-top:1px solid rgba(255,255,255,0.06); padding:2.5rem 1.5rem; text-align:center;">
+  <p style="color:#475569; font-size:0.875rem; margin:0;">XR Editor &mdash; Senior UX Designer Case Study &nbsp;&middot;&nbsp; Details abstracted under NDA</p>
+</footer>
+
+<script>
+  var currentImages = [];
+  var currentIndex = 0;
+
+  function openLightbox(src, images, idx) {
+    currentImages = images || [src];
+    currentIndex = idx || 0;
+    document.getElementById('lightbox-img').src = currentImages[currentIndex];
+    document.getElementById('lightbox').classList.add('active');
+  }
+
+  function closeLightbox() {
+    document.getElementById('lightbox').classList.remove('active');
+  }
+
+  function moveLightbox(dir) {
+    currentIndex = (currentIndex + dir + currentImages.length) % currentImages.length;
+    document.getElementById('lightbox-img').src = currentImages[currentIndex];
+  }
+
+  document.getElementById('lightbox').addEventListener('click', function(e) {
+    if (e.target === this) closeLightbox();
+  });
+
+  document.addEventListener('keydown', function(e) {
+    if (!document.getElementById('lightbox').classList.contains('active')) return;
+    if (e.key === 'Escape') closeLightbox();
+    if (e.key === 'ArrowLeft') moveLightbox(-1);
+    if (e.key === 'ArrowRight') moveLightbox(1);
+  });
+</script>
+
+</body>
+</html>

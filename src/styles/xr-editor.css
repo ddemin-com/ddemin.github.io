@@ -1,0 +1,94 @@
+/* XR Editor specific styles */
+.ba-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+  margin-top: 2rem;
+}
+
+.ba-col {
+  border-radius: 1rem;
+  padding: 2.5rem;
+}
+
+.ba-col.before {
+  background: rgba(248, 113, 113, 0.06);
+  border: 1px solid rgba(248, 113, 113, 0.15);
+}
+
+.ba-col.after {
+  background: rgba(52, 211, 153, 0.06);
+  border: 1px solid rgba(52, 211, 153, 0.15);
+}
+
+.ba-col h3 {
+  font-size: 1.25rem;
+  font-weight: 700;
+  margin-bottom: 1.5rem;
+}
+
+.ba-col.before h3 {
+  color: #f87171;
+}
+
+.ba-col.after h3 {
+  color: #34d399;
+}
+
+.ba-item {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.ba-num {
+  font-size: 1.5rem;
+  font-weight: 700;
+  min-width: 3rem;
+  flex-shrink: 0;
+}
+
+.ba-col.before .ba-num {
+  color: #f87171;
+}
+
+.ba-col.after .ba-num {
+  color: #34d399;
+}
+
+.ba-text {
+  font-size: 0.875rem;
+  color: #94a3b8;
+}
+
+.decision-card {
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 1rem;
+  padding: 2rem;
+  margin-bottom: 2rem;
+}
+
+.decision-num {
+  font-size: 0.875rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: #818cf8;
+  margin-bottom: 0.75rem;
+}
+
+.decision-card h3 {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: white;
+  margin-bottom: 1rem;
+}
+
+.decision-card p {
+  font-size: 0.9375rem;
+  color: #94a3b8;
+  line-height: 1.7;
+  margin-bottom: 1.5rem;
+}
